@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       amount,        // em centavos: 1990 = R$ 19,90
       productName,   // nome da oferta/produto
       customer,      // { name, email, document, phone }
-      metadata,      // opcional
+      metadata,      // opcional (vamos converter pra string)
     } = req.body || {};
 
     // Validação básica dos campos obrigatórios
@@ -58,6 +58,27 @@ export default async function handler(req, res) {
       return;
     }
 
+    // --- AJUSTES IMPORTANTES AQUI ---
+
+    // 1) Normalizar o document: se vier string, converte pra objeto { number, type }
+    const normalizedCustomer = {
+      ...customer,
+      document:
+        typeof customer.document === "string"
+          ? { number: customer.document, type: "CPF" } // ajusta o type se precisar
+          : customer.document,
+    };
+
+    // 2) Normalizar o metadata: o Magic quer STRING
+    let normalizedMetadata = "";
+    if (typeof metadata === "string") {
+      normalizedMetadata = metadata;
+    } else if (metadata && typeof metadata === "object") {
+      normalizedMetadata = JSON.stringify(metadata);
+    } else {
+      normalizedMetadata = ""; // pode deixar vazio
+    }
+
     // Basic Auth: publicKey:secretKey em base64
     const auth =
       "Basic " + Buffer.from(publicKey + ":" + secretKey).toString("base64");
@@ -67,8 +88,8 @@ export default async function handler(req, res) {
       amount,                 // sempre em centavos
       paymentMethod: "pix",   // fixo: PIX
       description: `Compra: ${productName}`,
-      customer,
-      metadata: metadata || {},
+      customer: normalizedCustomer,
+      metadata: normalizedMetadata,
       items: [
         {
           title: productName,
