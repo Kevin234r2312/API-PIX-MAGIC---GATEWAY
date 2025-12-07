@@ -15,9 +15,10 @@ export default async function handler(req, res) {
 
   // GET só para teste rápido no navegador
   if (req.method === "GET") {
-    res
-      .status(200)
-      .json({ ok: true, message: "Magic PIX API ativa. Use POST para criar um PIX." });
+    res.status(200).json({
+      ok: true,
+      message: "Magic PIX API ativa. Use POST para criar um PIX."
+    });
     return;
   }
 
@@ -58,18 +59,16 @@ export default async function handler(req, res) {
       return;
     }
 
-    // --- AJUSTES IMPORTANTES AQUI ---
-
     // 1) Normalizar o document: se vier string, converte pra objeto { number, type }
     const normalizedCustomer = {
       ...customer,
       document:
         typeof customer.document === "string"
-          ? { number: customer.document, type: "CPF" } // ajusta o type se precisar
+          ? { number: customer.document, type: "cpf" } // <- aqui em minúsculo
           : customer.document,
     };
 
-    // 2) Normalizar o metadata: o Magic quer STRINGg
+    // 2) Normalizar o metadata: o Magic quer STRING
     let normalizedMetadata = "";
     if (typeof metadata === "string") {
       normalizedMetadata = metadata;
@@ -127,7 +126,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       id: data.id,
       status: data.status,
-      // Esses campos abaixo você ajusta depois com os nomes certos da doc do Magic:
+      // Ajustar depois com os campos reais de PIX da resposta do Magic:
       pix: data.pix || data.pixPayload || null,
       raw: data, // deixar agora pra debugar; depois, se quiser, pode remover
     });
