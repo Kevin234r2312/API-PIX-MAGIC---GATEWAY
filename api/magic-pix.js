@@ -69,7 +69,7 @@ export default async function handler(req, res) {
           : customer.document,
     };
 
-    // 2) Normalizar o metadata: o Magic quer STRING
+    // 2) Normalizar o metadata: o Magic quer STRINGg
     let normalizedMetadata = "";
     if (typeof metadata === "string") {
       normalizedMetadata = metadata;
