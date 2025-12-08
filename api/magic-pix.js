@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     res.status(200).json({
       ok: true,
-      message: "Magic PIX API ativa. Use POST para criar um PIX."
+      message: "Magic PIX API ativa. Use POST para criar um PIX.",
     });
     return;
   }
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       ...customer,
       document:
         typeof customer.document === "string"
-          ? { number: customer.document, type: "cpf" } // <- aqui em minúsculo
+          ? { number: customer.document, type: "cpf" } // tipo em minúsculo
           : customer.document,
     };
 
@@ -120,15 +120,16 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Aqui devolvemos algo genérico pro front.
-    // Depois, com um exemplo REAL de resposta do Magic,
-    // a gente mapeia certinho qrCode / copia e cola.
+    // Extrair info de PIX do Magic (tanto topo quanto de raw)
+    const pixData = data.pix || data.raw?.pix || null;
+
     res.status(200).json({
       id: data.id,
       status: data.status,
-      // Ajustar depois com os campos reais de PIX da resposta do Magic:
-      pix: data.pix || data.pixPayload || null,
-      raw: data, // deixar agora pra debugar; depois, se quiser, pode remover
+      qrCode: pixData?.qrcode || null,          // código copia e cola
+      expirationDate: pixData?.expirationDate || null,
+      receiptUrl: pixData?.receiptUrl || null,
+      raw: data, // deixa por enquanto pra debug; depois pode remover se quiser
     });
   } catch (error) {
     console.error("Erro na API Magic PIX:", error);
